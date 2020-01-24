@@ -1,8 +1,8 @@
 package finder
 
 import (
-    "log"
     "sync"
+    "fmt"
 )
 
 type Finder struct {
@@ -13,7 +13,7 @@ type Finder struct {
     processedPutWG sync.WaitGroup
     processedRenderWG sync.WaitGroup
     taskCn chan string
-    renderCn chan Task
+    renderCn chan *Task
 }
 
 func NewFinder(searchWord string) *Finder {
@@ -21,7 +21,7 @@ func NewFinder(searchWord string) *Finder {
     f.maxCountWorkers = 10
     f.searchWord = searchWord
     f.taskCn =  make(chan string)
-    f.renderCn = make(chan Task)
+    f.renderCn = make(chan *Task)
     return f
 }
 
@@ -41,12 +41,9 @@ func (f *Finder) Start(str string) {
         f.processedPutWG.Add(1)
         go func() {
             defer f.processedPutWG.Done()
-            for task := range f.taskCn {
-                t := Task {
-                    Url: task,
-                }
-                t.Run(f.searchWord)
-                f.totalCountWord += t.CountWord
+            for url := range f.taskCn {
+                t := NewTask(url, f.searchWord)
+                f.totalCountWord += t.GetCountWordsFoundOnSite()
                 f.renderCn <- t
             }
         }()
@@ -62,9 +59,9 @@ func (f *Finder) Render() {
     go func() {
         defer f.processedRenderWG.Done()
         for t := range f.renderCn {
-            log.Println("Count for ", t.Url, ":", t.CountWord)
+            t.Render()
         }
-        log.Println("Total:", f.totalCountWord)
+        fmt.Println("Total:", f.totalCountWord)
     }()
 }
 

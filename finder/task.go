@@ -5,26 +5,36 @@ import (
     "io/ioutil"
     "bytes"
     "log"
+    "fmt"
 )
 
 type Task struct {
-    Url string
-    CountWord int
+    url string
+    searchWord string
+    countWord int
+}
+
+func NewTask(url, searchWord string) *Task {
+    t := new(Task)
+    t.url = url
+    t.searchWord = searchWord
+    return t
 }
 
 /*
-* Старт задачи
+* Старт задачи - получить кол-во найденых слов на сайте
 */
-func (t *Task) Run(searchWord string) {
+func (t *Task) GetCountWordsFoundOnSite() int {
     body := t.getBody()
-    t.CountWord = t.CountSubStr(body, searchWord)
+    t.countWord = t.CountSubStr(body)
+    return t.countWord
 }
 
 /*
 * Получаем тело
 */
 func (t Task) getBody() []byte {
-    resp, err := http.Get(t.Url)
+    resp, err := http.Get(t.url)
     if err != nil {
         log.Println(err.Error())
     }
@@ -39,6 +49,13 @@ func (t Task) getBody() []byte {
 /*
 * Количество найденной строки в байтовом массиве
 */
-func (t Task) CountSubStr(body []byte, text string) int {
-    return bytes.Count(body, []byte(text));
+func (t Task) CountSubStr(body []byte) int {
+    return bytes.Count(body, []byte(t.searchWord));
+}
+
+/*
+* Вывод в консоль
+*/
+func (t Task) Render() {
+    fmt.Println("Count for " + t.url + ":", t.countWord)
 }

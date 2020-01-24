@@ -53,12 +53,10 @@ func TestRun(t *testing.T) {
         },
     }
     for _, c := range cases {
-        task := Task {
-            Url: c.url,
-        }
-        task.Run(c.searchWord);
-        if c.countWord != task.CountWord {
-            t.Errorf("task.Run(%q), url: %q, countWord: %d != task.CountWord: %d", c.searchWord, c.url, c.countWord, task.CountWord)
+        task := NewTask(c.url, c.searchWord)
+        countFindWord := task.GetCountWordsFoundOnSite()
+        if c.countWord != countFindWord {
+            t.Errorf("task.Run(%q), url: %q, countWord: %d != task.CountWord: %d", c.searchWord, c.url, c.countWord, countFindWord)
         }
     }
 }
