@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bufio"
-	"os"
-	"go-finder/finder"
-	"log"
+    "bufio"
+    "os"
+    "go-finder/finder"
+    "log"
 )
 
 func main() {

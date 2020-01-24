@@ -1,10 +1,10 @@
 package finder
 
 import (
-	"net/http"
-	"io/ioutil"
-	"bytes"
-	"log"
+    "net/http"
+    "io/ioutil"
+    "bytes"
+    "log"
 )
 
 type Task struct {
@@ -27,12 +27,12 @@ func (t Task) getBody() []byte {
     resp, err := http.Get(t.Url)
     if err != nil {
         log.Println(err.Error())
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+    }
+    defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
         log.Println(err.Error())
-	}
+    }
     return body
 }
 
