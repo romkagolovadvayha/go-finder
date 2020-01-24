@@ -10,10 +10,8 @@ import (
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-    f := finder.Finder {
-        MaxCountWorkers: 5
-        SearchWord: "Go",
-    }
+    f := finder.NewFinder("Go")
+    f.SetMaxCountWorkers(5)
 
     f.Render()
 	for scanner.Scan() {
@@ -23,5 +21,7 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		log.Fatalln(err)
 	}
+
+    f.StopWait()
 }
 

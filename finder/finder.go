@@ -6,26 +6,48 @@ import (
 )
 
 type Finder struct {
-    MaxCountWorkers int
+    maxCountWorkers int
     countWorkers int
-    SearchWord string  // Поисковое слово
+    searchWord string  // Поисковое слово
     totalCountWord int
-    ProcessedPutWG sync.WaitGroup
-    ProcessedRenderWG sync.WaitGroup
+    processedPutWG sync.WaitGroup
+    processedRenderWG sync.WaitGroup
+    taskCn chan string
+    renderCn chan Task
 }
 
+func NewFinder(searchWord string) *Finder {
+    f := new(Finder)
+    f.maxCountWorkers = 10
+    f.searchWord = searchWord
+	f.taskCn =  make(chan string)
+	f.renderCn = make(chan Task)
+    return f
+}
+
+/*
+* Максимальное кол-во потоков
+*/
+func (f *Finder) SetMaxCountWorkers(countWorkers int) {
+    f.maxCountWorkers = countWorkers
+}
 
 /*
 * Запуск процесса
 */
 func (f *Finder) Start(str string) {
-    if f.countWorkers < f.MaxCountWorkers {
+    if f.countWorkers < f.maxCountWorkers {
 		f.countWorkers++
-        f.ProcessedPutWG.Add(1)
+        f.processedPutWG.Add(1)
         go func() {
-            defer f.ProcessedPutWG.Done()
+            defer f.processedPutWG.Done()
             for task := range f.taskCn {
-                f.renderCn <- task
+                t := Task {
+                    Url: task,
+                }
+                t.Run(f.searchWord)
+                f.totalCountWord += t.CountWord
+                f.renderCn <- t
             }
         }()
     }
@@ -36,9 +58,9 @@ func (f *Finder) Start(str string) {
 * Пишем результат
 */
 func (f *Finder) Render() {
-    f.ProcessedRenderWG.Add(1)
+    f.processedRenderWG.Add(1)
 	go func() {
-        defer f.ProcessedRenderWG.Done()
+        defer f.processedRenderWG.Done()
 		for t := range f.renderCn {
             log.Println("Count for ", t.Url, ":", t.CountWord)
 		}
@@ -51,8 +73,8 @@ func (f *Finder) Render() {
 */
 func (f *Finder) StopWait() {
 	close(f.taskCn)
-	f.ProcessedPutWG.Wait()
+	f.processedPutWG.Wait()
 
 	close(f.renderCn)
-	f.ProcessedRenderWG.Wait()
+	f.processedRenderWG.Wait()
 }
