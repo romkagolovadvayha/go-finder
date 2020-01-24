@@ -61,4 +61,4 @@ func TestRun(t *testing.T) {
 			t.Errorf("task.Run(%q), url: %q, countWord: %d != task.CountWord: %d", c.searchWord, c.url, c.countWord, task.CountWord)
 		}
 	}
-}*/
+}
