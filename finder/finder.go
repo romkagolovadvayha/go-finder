@@ -14,6 +14,7 @@ type Finder struct {
     processedRenderWG sync.WaitGroup
     taskCn chan string
     renderCn chan *Task
+    mu sync.Mutex
 }
 
 func NewFinder(searchWord string) *Finder {
@@ -40,12 +41,14 @@ func (f *Finder) Start(str string) {
         f.countWorkers++
         f.processedPutWG.Add(1)
         go func() {
+            f.mu.Lock();
             defer f.processedPutWG.Done()
             for url := range f.taskCn {
                 t := NewTask(url, f.searchWord)
                 f.totalCountWord += t.GetCountWordsFoundOnSite()
                 f.renderCn <- t
             }
+            f.mu.Unlock();
         }()
     }
     f.taskCn <- str
