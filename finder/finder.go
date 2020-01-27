@@ -41,14 +41,14 @@ func (f *Finder) Start(str string) {
         f.countWorkers++
         f.processedPutWG.Add(1)
         go func() {
-            f.mu.Lock();
             defer f.processedPutWG.Done()
             for url := range f.taskCn {
                 t := NewTask(url, f.searchWord)
+                f.mu.Lock();
                 f.totalCountWord += t.GetCountWordsFoundOnSite()
+                f.mu.Unlock();
                 f.renderCn <- t
             }
-            f.mu.Unlock();
         }()
     }
     f.taskCn <- str
