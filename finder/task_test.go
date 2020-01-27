@@ -54,8 +54,8 @@ func TestGetCountWordsFoundOnSite(t *testing.T) {
     }
     for _, c := range cases {
         task := NewTask(c.url, c.searchWord)
-        countFindWord := task.Run()
-        if c.countWord != countFindWord {
+        task.Run()
+        if c.countWord != task.countWord {
             t.Errorf("task.Run(%q), url: %q, countWord: %d != task.CountWord: %d", c.searchWord, c.url, c.countWord, countFindWord)
         }
     }
