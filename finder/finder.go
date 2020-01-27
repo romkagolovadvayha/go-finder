@@ -9,12 +9,10 @@ type Finder struct {
     maxCountWorkers int
     countWorkers int
     searchWord string  // Поисковое слово
-    totalCountWord int
     processedPutWG sync.WaitGroup
     processedRenderWG sync.WaitGroup
     taskCn chan string
     renderCn chan *Task
-    mu sync.Mutex
 }
 
 func NewFinder(searchWord string) *Finder {
@@ -44,9 +42,7 @@ func (f *Finder) Start(str string) {
             defer f.processedPutWG.Done()
             for url := range f.taskCn {
                 t := NewTask(url, f.searchWord)
-                f.mu.Lock();
-                f.totalCountWord += t.GetCountWordsFoundOnSite()
-                f.mu.Unlock();
+                t.Run()
                 f.renderCn <- t
             }
         }()
@@ -60,11 +56,13 @@ func (f *Finder) Start(str string) {
 func (f *Finder) Render() {
     f.processedRenderWG.Add(1)
     go func() {
+        total := 0;
         defer f.processedRenderWG.Done()
         for t := range f.renderCn {
+            total += t.countWord
             t.Render()
         }
-        fmt.Println("Total:", f.totalCountWord)
+        fmt.Println("Total:", total)
     }()
 }
 

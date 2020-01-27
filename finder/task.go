@@ -24,10 +24,9 @@ func NewTask(url, searchWord string) *Task {
 /*
 * Старт задачи - получить кол-во найденых слов на сайте
 */
-func (t *Task) GetCountWordsFoundOnSite() int {
+func (t *Task) Run() {
     body := t.getBody()
     t.countWord = t.CountSubStr(body)
-    return t.countWord
 }
 
 /*
