@@ -35,7 +35,7 @@ func TestCountSubStr(t *testing.T) {
     }
 }
 
-func TestRun(t *testing.T) {
+func TestGetCountWordsFoundOnSite(t *testing.T) {
     cases := []struct {
         url string
         searchWord string
